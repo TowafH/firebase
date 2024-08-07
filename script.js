@@ -11,11 +11,11 @@ const database = firebase.database().ref();
  *      - button with id #send-btn and the updateDB
  *        function as an onclick event handler
  */
+let allMessages = document.getElementById('all-messages');
+let usernameElem = document.getElementById('username');
+let messageElem = document.getElementById("message");
+let sendBtn = document.getElementById('send-btn');
 
-const allMessages = document.getElementById("all-messages");
-const usernameElem = document.getElementById("username");
-const messageElem = document.getElementById("message");
-const sendBtn = document.getElementById("send-btn")
 
 /**
  * @TODO create a function called updateDB which takes
@@ -38,19 +38,27 @@ function updateDB(event) {
 
   event.preventDefault();
 
-  //Prepares to send Information to the Database
+  if (usernameElem.value && messageElem.value){
+
+  
+  // prepare my data for the database
   const data = {
     USERNAME: usernameElem.value,
     MESSAGE: messageElem.value
   }
 
   console.log(data);
-  
-  database.push(data); //Pushes data to the Database
 
-  //Reset the textboxes
-  //usernameElem.value = "";
+  // send our data to our DB
+  database.push(data);
+  }
+  else{
+    alert("Please enter a username and message!");
+  }
+
+  // reset the message textbox 
   messageElem.value = "";
+
 }
 
 sendBtn.addEventListener("click", updateDB);
@@ -60,7 +68,6 @@ sendBtn.addEventListener("click", updateDB);
  * handler for the "child_added" event on the database
  * object
  */
-
 database.on("child_added", addMessageToBoard);
 
 /**
@@ -81,12 +88,15 @@ function addMessageToBoard(rowData) {
   // that stores function call for makeSingleMessageHTML()
   // Append the new message HTML element to allMessages
 
-  const data = rowData.val();
+  const data = rowData.val(); // converts the response into a JSON
 
-  console.log(data)
-  
-  let singleMessage = makesingleMessageHTML(data.USERNAME, data.MESSAGE);
-  allMessages.appendChild(singleMessage)
+  console.log(data);
+
+  // make a new HTML element, using the information in the parameters
+  // return the new element
+  let singleMessage = makeSingleMessageHTML(data.USERNAME, data.MESSAGE);
+  allMessages.appendChild(singleMessage);
+
 }
 
 /**
@@ -115,18 +125,17 @@ function makeSingleMessageHTML(usernameTxt, messageTxt) {
   // Create message P Tag
   // Return Parent Div
 
-  console.log("Here:", usernameTxt, messageTxt);
-
   let parentDiv = document.createElement("div");
-  parentDiv.className = "single-message";
+  parentDiv.className = 'single-message';
 
   let usernameP = document.createElement("p");
-  usernameP.className = "single-message-username";
+  usernameP.className = 'single-message-username';
   usernameP.innerText = usernameTxt + ":";
+  parentDiv.appendChild(usernameP);
 
   let messageP = document.createElement("p");
   messageP.innerText = messageTxt;
-  parentDiv.appendChild(usernameP);
+  parentDiv.appendChild(messageP);
 
   return parentDiv;
 }
